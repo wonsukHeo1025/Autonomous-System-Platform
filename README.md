@@ -61,7 +61,6 @@ Gazebo Pose 정보 -> ros_gz_bridge -> ROS2 TFMessage 토픽 -> pose_tf_broadcas
 
 1. Gazebo에서의 Pose 정보 발행
 시뮬레이션 내 로봇 모델(X1_asp, x500_gimbal_0)의 SDF 파일에는 gz-sim-pose-publisher-system 플러그인이 포함되어 있습니다.
-
 이 플러그인은 모델과 그 하위 링크(link)들의 위치(pose) 정보를 Gazebo 내부 토픽(/model/MODEL_NAME/pose, /model/MODEL_NAME/pose_static)으로 발행합니다.
 
 2. ros_gz_bridge를 통한 데이터 변환
@@ -70,7 +69,6 @@ topic_bridge.launch.py는 ros_gz_bridge의 parameter_bridge 노드를 실행하�
 
 3. pose_tf_broadcaster 노드의 역할
 gazebo_env_setup 패키지의 pose_tf_broadcaster 노드는 브릿지를 통해 전달된 TFMessage 토픽들(/model/X1_asp/pose_static, /model/x500_gimbal_0/pose_static, /model/x500_gimbal_0/pose)을 구독합니다.
-
 pose_callback 함수 내에서 수신된 메시지의 header.frame_id가 Gazebo의 기본값인 "default"일 경우, ROS의 표준 월드 프레임인 "map"으로 변경합니다.
 tf2_ros::TransformBroadcaster를 사용하여 가공된 Transform 정보를 ROS2의 표준 TF 토픽인 /tf와 /tf_static으로 최종 발행(broadcast)합니다.
 
