@@ -32,4 +32,16 @@
 
 
 ## 실행 방법
-- GitHub 저장소 복
+1. GitHub 저장소 복제 (Clone the repo)
+2. ROS2 워크스페이스 설정 (Setup ROS2 Workspace)
+   '''
+   cd final_ws
+   colcon build
+   source install/setup.bash
+   '''
+3. 실행
+   '''
+   terminal1: ./final.sh
+   terminal2: ros2 launch uav_controller uav_controller
+   terminal3: ros2 launch ugv_controller path_follower
+   '''
