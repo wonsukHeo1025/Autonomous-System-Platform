@@ -52,23 +52,34 @@
 
 
 ## 좌표계 관리 (TF - Transform)
-```
-graph TD
-    A[world] --> B(ugv_base_link);
-    B --> C(uav_base_link);
-    C --> D(camera_link);
-    D --> E(aruco_marker);
-```
-world(map) 좌표계를 기준으로 UGV, UAV, 카메라, 그리고 최종적으로 인식된 ArUco 마커까지의 관계가 위와 같은 트리 구조로 연결됩니다.
+본 프로젝트의 핵심은 Gazebo 시뮬레이션 환경의 좌표 정보를 ROS2의 표준 TF(Transform) 시스템으로 통합하는 과정에 있습니다.
 
-1. 웨이포인트 추종 (Waypoint Following)
-모든 임무의 기준이 되는 웨이포인트는 고정된 world 좌표계에 정의되어 있습니다. 로봇(UAV, UGV)이 성공적으로 웨이포인트를 따라가기 위해서는 world 좌표계상에서 자신의 현재 위치와 방향(Pose)을 알아야합니다. tf2는 로봇의 base_link와 world 좌표계 간의 변환 관계를 지속적으로 제공하여, 로봇이 목표 지점까지 이동할 경로를 계산할 수 있게 합니다.
+전체 데이터 흐름도
+```
+Gazebo Pose 정보 -> ros_gz_bridge -> ROS2 TFMessage 토픽 -> pose_tf_broadcaster 노드 -> ROS2 /tf 토픽
+```
 
-2. ArUco 마커 위치 특정 (ArUco Markere Localization)
-UAV 정찰 임무의 최종 목표는 ArUco 마커의 world 좌표를 알아내는 것입니다. 이 과정은 여러 단계의 TF 변환을 통해 이루어집니다.
-1. UAV의 카메라는 자신의 camera_link 좌표계를 기준으로 ArUco 마커의 상대 위치를 인식합니다.
-2. tf2는 이미 알고 있는 uav_base_link와 camera_link 사이의 정적인 변환(Static Transform)을 사용합니다.
-3. world ← uav_base_link ← camera_link ← aruco_marker, 카메라에 포착된 마커의 상대 위치를 최종적인 전역 위치, 즉 world 좌표로 변환합니다.
+1. Gazebo에서의 Pose 정보 발행
+시뮬레이션 내 로봇 모델(X1_asp, x500_gimbal_0)의 SDF 파일에는 gz-sim-pose-publisher-system 플러그인이 포함되어 있습니다.
+
+이 플러그인은 모델과 그 하위 링크(link)들의 위치(pose) 정보를 Gazebo 내부 토픽(/model/MODEL_NAME/pose, /model/MODEL_NAME/pose_static)으로 발행합니다.
+
+2. ros_gz_bridge를 통한 데이터 변환
+topic_bridge.launch.py는 ros_gz_bridge의 parameter_bridge 노드를 실행하여 Gazebo의 Pose_V 메시지를 ROS2의 tf2_msgs/msg/TFMessage 메시지로 변환합니다.
+이 브릿지를 통해 Gazebo의 동적/정적 위치 정보가 ROS2 네트워크로 전달됩니다.
+
+3. pose_tf_broadcaster 노드의 역할
+gazebo_env_setup 패키지의 pose_tf_broadcaster 노드는 브릿지를 통해 전달된 TFMessage 토픽들(/model/X1_asp/pose_static, /model/x500_gimbal_0/pose_static, /model/x500_gimbal_0/pose)을 구독합니다.
+
+pose_callback 함수 내에서 수신된 메시지의 header.frame_id가 Gazebo의 기본값인 "default"일 경우, ROS의 표준 월드 프레임인 "map"으로 변경합니다.
+tf2_ros::TransformBroadcaster를 사용하여 가공된 Transform 정보를 ROS2의 표준 TF 토픽인 /tf와 /tf_static으로 최종 발행(broadcast)합니다.
+
+4. 정적 TF(Static Transform) 발행
+pose_tf_broadcaster.launch.py에서는 C++ 노드와 별개로, tf2_ros의 static_transform_publisher를 사용하여 로봇의 구조적으로 고정된 부분들의 관계를 직접 발행합니다.
+예를 들어, UGV의 몸체(X1_asp/base_link)와 그 위에 장착된 카메라(X1_asp/base_link/camera_front) 및 라이다(X1_asp/base_link/gpu_lidar) 간의 상대 위치는 변하지 않으므로, 이 노드를 통해 시스템 시작 시 한 번만 발행됩니다.
+
+
+이러한 다단계 과정을 통해, 시뮬레이션 내 모든 객체의 위치 관계가 ROS2에서 완벽하게 통합 관리되어 자율 주행 및 정밀 제어의 기반을 마련합니다.
 
 
 ## 시작하기 (Getting Started)
