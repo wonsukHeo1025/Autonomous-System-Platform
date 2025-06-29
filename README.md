@@ -1,6 +1,7 @@
 # UAV-UGV Cooperation-Based Autonomous System Platform
 
 
+
 ## 프로젝트 개요
 하늘의 눈(UAV)과 땅의 발(UGV)이 만나, 인간이 접근하기 어려운 재난 상황 속에서 정보를 수집하는 ROS2 및 Gazebo 시뮬레이션 환경 기반의 재난 지역 탐사 프로젝트
 
@@ -9,12 +10,14 @@
 ![image](https://github.com/user-attachments/assets/2a240d2c-8fde-43d9-b4c3-d03a5f92eac3)
 
 
+
 ## 프로젝트 소개
 본 프로젝트는 UAV-UGV 협력 탐사 시스템으로 ROS2와 Gazebo 시뮬레이션 환경을 기반으로 개발되었습니다.
 
 프로젝트의 핵심 시나리오는 다음고 같습니다. 먼저, UGV(무인 지상 차량)가 재난 지역 내 임무 수행 지점까지 UAV(무인 항공기)를 탑재하여 이동합니다. 그 후, UAV는 UGV로부터 이륙하여 UGV가 접근할 수 없는 위험 구역을 정찰하며 주요 정보(ArUco 마커의 ID 및 위치)를 수집합니다. 마지막으로 UAV는 지정된 지점(Rendezvouos Point)으로 이동한 UGV 위에 정밀하게 착륙하여 임무를 완수합니다.
 
 이러한 과정을 통해 자율 시스템의 설계, 다중 로봇 간의 통신, 그리고 시뮬레이션 환경에서의 알고리즘 검증 및 평가 능력을 종합적으로 구현하는 것을 목표로 합니다.
+
 
 
 ## 주요 기능
@@ -31,6 +34,7 @@
   UAV는 카메라를 이용해 UGV 상단의 착륙용 마커를 인식하고, 이를 기반으로 정밀 제어하여 UGv 위에 안전하게 착륙합니다.
 
 
+
 ## 주요 기능 (Key Features)
 - ROS2 기반 분산 시스템: 중앙 마스터 없는 노드 간 호율적인 실시간 통신
 - LiDAR 기반 장애물 회피: 2D LiDAR 데이터를 이용한 장애물 회피 주행
@@ -39,10 +43,12 @@
 - Gazebo 시뮬레이션: 실제와 유사한 환경에서 전체 미션 검증 및 디버깅
 
 
+
 ## 사전 준비물 (Prerequisites)
 - Ubuntu 22.04
 - ROS2 Humble
 - Gazebo Classic
+
 
 
 ## 좌표계 관리 (TF - Transform)
