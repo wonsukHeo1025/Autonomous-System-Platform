@@ -31,7 +31,41 @@
   UAV는 카메라를 이용해 UGV 상단의 착륙용 마커를 인식하고, 이를 기반으로 정밀 제어하여 UGv 위에 안전하게 착륙합니다.
 
 
-## 실행 방법
+## 주요 기능 (Key Features)
+- ROS2 기반 분산 시스템: 중앙 마스터 없는 노드 간 호율적인 실시간 통신
+- LiDAR 기반 장애물 회피: 2D LiDAR 데이터를 이용한 장애물 회피 주행
+- ArUco 마커 탐지: 카메라 영상을 이용해 마커의 ID와 3D 위치 정보 추출
+- 정밀 착륙 제어: 시각 정보를 이용한 PID 제어로 UGV 상판 위 정밀 착륙
+- Gazebo 시뮬레이션: 실제와 유사한 환경에서 전체 미션 검증 및 디버깅
+
+
+## 사전 준비물 (Prerequisites)
+- Ubuntu 22.04
+- ROS2 Humble
+- Gazebo Classic
+
+
+## 좌표계 관리 (TF - Transform)
+```
+graph TD
+    A[world] --> B(ugv_base_link);
+    B --> C(uav_base_link);
+    C --> D(camera_link);
+    D --> E(aruco_marker);
+```
+world(map) 좌표계를 기준으로 UGV, UAV, 카메라, 그리고 최종적으로 인식된 ArUco 마커까지의 관계가 위와 같은 트리 구조로 연결됩니다.
+
+1. 웨이포인트 추종 (Waypoint Following)
+모든 임무의 기준이 되는 웨이포인트는 고정된 world 좌표계에 정의되어 있습니다. 로봇(UAV, UGV)이 성공적으로 웨이포인트를 따라가기 위해서는 world 좌표계상에서 자신의 현재 위치와 방향(Pose)을 알아야합니다. tf2는 로봇의 base_link와 world 좌표계 간의 변환 관계를 지속적으로 제공하여, 로봇이 목표 지점까지 이동할 경로를 계산할 수 있게 합니다.
+
+2. ArUco 마커 위치 특정 (ArUco Markere Localization)
+UAV 정찰 임무의 최종 목표는 ArUco 마커의 world 좌표를 알아내는 것입니다. 이 과정은 여러 단계의 TF 변환을 통해 이루어집니다.
+1. UAV의 카메라는 자신의 camera_link 좌표계를 기준으로 ArUco 마커의 상대 위치를 인식합니다.
+2. tf2는 이미 알고 있는 uav_base_link와 camera_link 사이의 정적인 변환(Static Transform)을 사용합니다.
+3. world ← uav_base_link ← camera_link ← aruco_marker, 카메라에 포착된 마커의 상대 위치를 최종적인 전역 위치, 즉 world 좌표로 변환합니다.
+
+
+## 시작하기 (Getting Started)
 1. GitHub 저장소 복제 (Clone the repo)
 2. ROS2 워크스페이스 설정 (Setup ROS2 Workspace)
    ```
@@ -43,5 +77,5 @@
    ```
    terminal1: ./final.sh
    terminal2: ros2 launch uav_controller uav_controller
-   terminal3: ros2 launch ugv_controller path_follower
+   terminal3: ros2 launch ugv_controller path_follower_node
    ```
