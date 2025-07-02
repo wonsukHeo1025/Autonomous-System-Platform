@@ -85,7 +85,8 @@ pose_tf_broadcaster.launch.py에서는 C++ 노드와 별개로, tf2_ros의 stati
 2. ROS2 워크스페이스 설정 (Setup ROS2 Workspace)
    ```
    cd final_ws
-   colcon build
+   colcon build --cmake-args -DOpenCV_DIR=/usr/lib/x86_64-linux-gnu/cmake/opencv4 \
+               -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu/cmake/opencv4
    source install/setup.bash
    ```
 3. 실행
